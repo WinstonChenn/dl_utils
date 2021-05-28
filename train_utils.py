@@ -78,7 +78,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
             vali_losses = state['vali_losses']
             vali_accues = state['vali_accues']
             break
-
+    
     epoch = start_epoch
     for epoch in range(start_epoch, epochs):
         net.train()
@@ -87,6 +87,10 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
         for i, batch in t:
             inputs, labels = batch
 
+            def closure():
+                loss = criterion(labels, net(input))
+                loss.backward()
+                return loss
             # zero the parameter gradients
             optimizer.zero_grad()
             # forward + backward + optimize
@@ -94,7 +98,10 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
             # ***map to network output, specific for CIFAR-50***
             loss = criterion(outputs, (labels//2).to(device))
             loss.backward()
-            optimizer.step()
+            if optim_str == "SAM":
+                optimizer.step(closure)
+            else:
+                optimizer.step()
             losses.append(loss.item())
             t.set_description(f"loss={loss.item():.3f}\tepoch={epoch:.3f}")
 
