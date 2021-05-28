@@ -94,10 +94,9 @@ def convert_from_tfrecords(data_root, dir_name, num_class, mode, output_path, js
           os.path.join(output_path, json_file_prefix, json_file_prefix + '_{}.json'.format(mode)))
 
 
-if __name__ == '__main__':
+def convert_by_path(cls_names_path, input_path, output_path):
     modes = ['train', 'test']
-    args = parse_args()
-    with open(args.cls_names_path) as f:
+    with open(cls_names_path) as f:
         cls_names = json.load(f)
 
     # you can add other datasets as follows
@@ -108,22 +107,22 @@ if __name__ == '__main__':
 
     for m in modes:
         convert_from_tfrecords(
-            args.input_path, cifar100_im_1['dir'],
-            cifar100_im_1['class'], m, args.output_path,
+            input_path, cifar100_im_1['dir'],
+            cifar100_im_1['class'], m, output_path,
             cifar100_im_1['json'], cls_names
         )
         convert_from_tfrecords(
-            args.input_path, cifar100_im_01['dir'],
-            cifar100_im_01['class'], m, args.output_path,
+            input_path, cifar100_im_01['dir'],
+            cifar100_im_01['class'], m, output_path,
             cifar100_im_01['json'], cls_names
         )
         convert_from_tfrecords(
-            args.input_path, cifar100_im_002['dir'],
-            cifar100_im_002['class'], m, args.output_path,
+            input_path, cifar100_im_002['dir'],
+            cifar100_im_002['class'], m, output_path,
             cifar100_im_002['json'], cls_names
         )
         convert_from_tfrecords(
-            args.input_path, cifar100_im_0005['dir'],
-            cifar100_im_0005['class'], m, args.output_path,
+            input_path, cifar100_im_0005['dir'],
+            cifar100_im_0005['class'], m, output_path,
             cifar100_im_0005['json'], cls_names
         )
