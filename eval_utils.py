@@ -99,3 +99,26 @@ def plot_accuracy(class_accuracy, label_dict, decending=True):
     plt.xticks(rotation=90)
     plt.show()
     return sorted_dict
+
+
+def get_confusion_matrix(class_num, net, test_loader, device, div=True,
+                         eval=True):
+    mat = np.zeros((class_num, class_num))
+    net.to(device)
+    if eval:
+        net.eval()
+    with torch.no_grad():
+        for batch in test_loader:
+            images, labels = batch
+            if div:
+                labels = labels // 2
+            outputs = net(images.to(device))
+            _, preds = torch.max(outputs.data, 1)
+            assert len(labels) == len(preds), \
+                "output & label shape unmatch"
+            for i in range(len(labels)):
+                label, pred = labels[i], preds[i]
+                assert label < class_num and label >= 0
+                assert pred < class_num and pred >= 0
+                mat[label, pred] += 1
+    return mat
