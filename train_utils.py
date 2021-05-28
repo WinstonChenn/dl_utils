@@ -1,12 +1,12 @@
-
-
-import os
+import os, sys
+from os.path import dirname, realpath
 import torch
 import tqdm.notebook as tq
 from efficientnet_pytorch import EfficientNet
 import torch.nn as nn
 import torch.optim as optim
 
+sys.path.append(dirname(realpath(__file__))
 from sam.sam import SAM
 from eval_utils import simple_accuracy
 
