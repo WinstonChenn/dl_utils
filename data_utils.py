@@ -1,8 +1,11 @@
 import os, operator, random, wget, tarfile
-from torch.utils.data import Dataset
-import torch
 from PIL import Image
 import matplotlib.pyplot as plt
+import torch
+from torch.utils.data import Dataset
+from torchvision import transforms
+from torchvision.transforms import InterpolationMode
+from torch.utils.data import ConcatDataset
 
 
 # dataset object
@@ -98,6 +101,48 @@ def print_random_img_by_dataset(dataset_arr, label_map, n=3):
             axes[i].imshow(img.permute(1, 2, 0))
             axes[i].set_title(label_map[target])
         fig.show()
+
+
+# data augmentation utils
+def data_augmentation_X8(data_json):
+    """perform a data augmentation that expands dataset size by 7"""
+    tt_transform = transforms.Compose([transforms.ToTensor()])
+    rh_transform = transforms.Compose([transforms.RandomHorizontalFlip(p=1),
+                                       transforms.ToTensor()])
+    rv_transform = transforms.Compose([transforms.RandomVerticalFlip(p=1),
+                                       transforms.ToTensor()])
+    rr_transform = transforms.Compose([
+        transforms.RandomRotation(90, expand=False, center=None,
+                                  interpolation=InterpolationMode.BILINEAR),
+        transforms.ToTensor()])
+    ra_transform = transforms.Compose([
+        transforms.RandomAffine(90, translate=(0.2, 0.2), scale=(0.9, 1.1)),
+        transforms.ToTensor()])
+    cj_transform = transforms.Compose([
+        transforms.ColorJitter(brightness=0.5,
+                               contrast=0.5, saturation=0.5, hue=0.5),
+        transforms.ToTensor()])
+    rp_transform = transforms.Compose([
+        transforms.RandomPerspective(distortion_scale=0.5, p=1, fill=0,
+                                     interpolation=InterpolationMode.BILINEAR),
+        transforms.ToTensor()])
+    re_transform = transforms.Compose([
+        transforms.ToTensor(), transforms.RandomErasing(p=1)])
+
+    dataset_og = Cifar50Dataset(data_json, tt_transform)
+    dataset_rh = Cifar50Dataset(data_json, rh_transform)
+    dataset_rv = Cifar50Dataset(data_json, rv_transform)
+    dataset_ra = Cifar50Dataset(data_json, ra_transform)
+    dataset_rr = Cifar50Dataset(data_json, rr_transform)
+    dataset_cj = Cifar50Dataset(data_json, cj_transform)
+    dataset_rp = Cifar50Dataset(data_json, rp_transform)
+    dataset_re = Cifar50Dataset(data_json, re_transform)
+
+    dataset_arr = [dataset_og, dataset_rh, dataset_rv, dataset_ra, dataset_rr,
+                   dataset_cj, dataset_rp, dataset_re]
+    aug_dataset = ConcatDataset(dataset_arr)
+
+    return aug_dataset, dataset_arr
 
 
 def generate_jsonDict(main_json):
