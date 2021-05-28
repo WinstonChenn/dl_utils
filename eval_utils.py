@@ -1,3 +1,4 @@
+import operator
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
@@ -74,3 +75,27 @@ def plot_vali_stat(loss_arr, accu_arr):
     axes[0].plot(loss_arr)
     axes[1].set_title("accurcy")
     axes[1].plot(accu_arr)
+
+
+def plot_accuracy(class_accuracy, label_dict, decending=True):
+    desired_stat = 'tPos'
+
+    label_to_total = {k: [class_accuracy[k]['cls_size'],
+                      class_accuracy[k][desired_stat]/class_accuracy[k]
+                          ['cls_size']]
+                      for k in class_accuracy.keys()}
+
+    # get item at 0 to sort by name, get item at 1 to sort by accuracy
+    sorted_tuples = sorted(label_to_total.items(), key=operator.itemgetter(1),
+                           reverse=decending)
+    sorted_dict = {k: v for k, v in sorted_tuples}
+
+    width = 0.8
+    plt.figure(figsize=(20, 7))  # width:20, height:10
+    # [ label_dict[k]  for k in sorted_dict.keys()]
+    plt.bar([label_dict[k] for k in sorted_dict.keys()],
+            [val[1] for val in sorted_dict.values()], width, color='g',
+            align='center')
+    plt.xticks(rotation=90)
+    plt.show()
+    return sorted_dict
