@@ -112,15 +112,18 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
                                                       vali_accuracy))
         vali_losses.append(losses[-1])
         vali_accues.append(vali_accuracy)
-
-    # save state_dict
-    if not os.path.exists(checkpoint_url):
+        
+        # save state_dict
         state = {'epoch': epoch+1, 'net': net.state_dict(),
                  'optimizer': optimizer.state_dict(),
                  'vali_losses': vali_losses,
                  'vali_accues': vali_accues}
-        print(f"save model checkpoint at={checkpoint_url}")
-        torch.save(state, checkpoint_url)
+        curr_save_url = url_func(epoch+1)
+        prev_save_url = url_func(epoch)
+        print(f"save model checkpoint at={curr_save_url}")
+        torch.save(state, curr_save_url)
+        if os.path.exists(prev_save_url):
+            os.remove(prev_save_url)
 
     # net.load_state_dict(best_state['net'])
     return net, vali_losses, vali_accues
