@@ -88,15 +88,15 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
             inputs, labels = batch
 
             def closure():
-                loss = criterion(labels, net(inputs.to(device)))
+                loss = criterion(net(inputs.to(device)),
+                                 (labels//2).to(device))
                 loss.backward()
                 return loss
             # zero the parameter gradients
             optimizer.zero_grad()
             # forward + backward + optimize
-            outputs = net(inputs.to(device))
             # ***map to network output, specific for CIFAR-50***
-            loss = criterion(outputs, (labels//2).to(device))
+            loss = criterion(net(inputs.to(device)), (labels//2).to(device))
             loss.backward()
             if optim_str == "SAM":
                 optimizer.step(closure)
