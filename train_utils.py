@@ -6,7 +6,7 @@ from efficientnet_pytorch import EfficientNet
 import torch.nn as nn
 import torch.optim as optim
 
-sys.path.append(dirname(realpath(__file__))
+sys.path.append(dirname(realpath(__file__)))
 from sam.sam import SAM
 from eval_utils import simple_accuracy
 
