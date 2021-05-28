@@ -88,7 +88,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
             inputs, labels = batch
 
             def closure():
-                loss = criterion(labels, net(input))
+                loss = criterion(labels, net(inputs))
                 loss.backward()
                 return loss
             # zero the parameter gradients
