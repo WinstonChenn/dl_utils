@@ -108,11 +108,11 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
         # validation
         net.eval()
         vali_accuracy = simple_accuracy(net, vali_loader, device)
-        print("epoch {}\tloss={}\taccuracy={}".format(epoch, losses[-1],
-                                                      vali_accuracy))
+        print("epoch {}\tloss={:.3f}\taccuracy={:.3f}".format(
+            epoch, losses[-1], vali_accuracy))
         vali_losses.append(losses[-1])
         vali_accues.append(vali_accuracy)
-        
+
         # save state_dict
         state = {'epoch': epoch+1, 'net': net.state_dict(),
                  'optimizer': optimizer.state_dict(),
@@ -122,7 +122,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
         prev_save_url = url_func(epoch)
         print(f"save model checkpoint at={curr_save_url}")
         torch.save(state, curr_save_url)
-        if os.path.exists(prev_save_url):
+        if os.path.exists(prev_save_url) and epoch % 10 != 0:
             os.remove(prev_save_url)
 
     # net.load_state_dict(best_state['net'])
