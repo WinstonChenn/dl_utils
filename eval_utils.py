@@ -69,7 +69,7 @@ def plot_losses(losses):
 
 
 def plot_vali_stat(loss_arr, accu_arr):
-    fig, axes = plt.subplots(1, 2, figsize=[6.4*2, 4.8])
+    fig, axes = plt.pyplot.subplots(1, 2, figsize=[6.4*2, 4.8])
     axes[0].set_title("losses")
     axes[0].plot(loss_arr)
     axes[1].set_title("accurcy")
