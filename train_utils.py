@@ -27,11 +27,11 @@ def get_SAM(model_params, lr, momentum, decay):
 
 
 def get_model(device, num_classes, optim_type, lr=0.001, momentum=0.9,
-              decay=0.0005):
+              decay=0.0005, loss_weight=None):
     """optim_type == SGD | Adam | SAM"""
     model = EfficientNet.from_name('efficientnet-b0')
     model._fc = nn.Linear(1280, num_classes)
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss(weight=loss_weight)
     optim_dict = {"SGD": get_SGD, "Adam": get_Adam, "SAM": get_SAM}
     assert optim_type in optim_dict, "invalid optim_type"
     optimizer = optim_dict[optim_type](model.parameters(), lr, momentum, decay)
@@ -49,7 +49,9 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
 
     # write save dir
     net_str = type(net).__name__
-    loss_str = type(criterion).__name__
+    loss_str = type(criterion).__name__ 
+    if type(criterion) == nn.CrossEntropyLoss:
+        loss_str += "_0" if criterion.__dict__['buffers']['weight'] == None else "_1"
     optim_str = type(optimizer).__name__
     lr = optimizer.param_groups[0]['lr']
     gamma = optimizer.param_groups[0]['weight_decay']
