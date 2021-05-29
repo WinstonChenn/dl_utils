@@ -31,12 +31,12 @@ def accuracy(net, dataloader, device, div=True, eval=True):
                 if labels.to(device)[idx] == predicted[idx]:
                     class_accuracy[int(labels.to(device)[idx])]['tPos'] += 1
                 else:
-                    if int(predicted.to(device)[idx]) in dataloader.dataset.label_dict.keys():
+                    if int(predicted.to(device)[idx]) in label_dct.keys():
                         class_accuracy[int(predicted.to(device)[idx])]['fPos'] += 1
                         class_accuracy[int(predicted.to(device)[idx])]['tNeg'] -= 1
                     class_accuracy[int(labels.to(device)[idx])]['fNeg'] += 1
                 # add 1 to everyone true Negative except at `int(labels.to(device)[idx])`
-                for label in dataloader.dataset.label_dict.keys():
+                for label in label_dct.keys():
                     class_accuracy[label]['tNeg'] += 1  # add one to everyone's true negative
                 class_accuracy[int(labels.to(device)[idx])]['tNeg'] -= 1
                 class_accuracy[int(labels.to(device)[idx])]['cls_size'] += 1
