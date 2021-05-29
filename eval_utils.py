@@ -89,7 +89,7 @@ def plot_accuracy(class_accuracy, label_dict, decending=True):
                       for k in class_accuracy.keys()}
 
     # get item at 0 to sort by name, get item at 1 to sort by accuracy
-    sorted_tuples = sorted(label_to_total.items(), key=operator.itemgetter(1),
+    sorted_tuples = sorted(label_to_total.items(), key=operator.itemgetter(0),
                            reverse=decending)
     sorted_dict = {k: v for k, v in sorted_tuples}
 
