@@ -42,7 +42,7 @@ def get_model(device, num_classes, optim_type, lr=0.001, momentum=0.9,
 
 
 def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
-          device, criterion, optimizer, epochs=1, verbose=1, print_every=10):
+          device, criterion, beta, optimizer, epochs=1, verbose=1, print_every=10):
     losses = []
     vali_losses = []
     vali_accues = []
@@ -51,7 +51,8 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
     net_str = type(net).__name__
     loss_str = type(criterion).__name__ 
     if type(criterion) == nn.CrossEntropyLoss:
-        loss_str += "_0" if criterion.__dict__['_buffers']['weight'] == None else "_1"
+        loss_str += "_0" if criterion.__dict__['_buffers']['weight'] == None else ("_1{" + str(beta) + "}")
+        
     optim_str = type(optimizer).__name__
     lr = optimizer.param_groups[0]['lr']
     gamma = optimizer.param_groups[0]['weight_decay']
