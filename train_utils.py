@@ -103,7 +103,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
             else:
                 optimizer.step()
             losses.append(loss.item())
-            t.set_description(f"loss={loss.item():.3f}\tepoch={epoch:.3f}")
+            t.set_description(f"loss={loss.item():.3f}\tepoch={epoch}")
 
         # validation
         net.eval()
