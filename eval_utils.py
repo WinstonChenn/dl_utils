@@ -13,7 +13,6 @@ def accuracy(net, dataloader, device, div=True, eval=True):
     # print(dataloader.dataset.label_dict.keys())
     label_dct = dataloader.dataset.label_dict
     label_dct = {k//2:label_dct[k] for k in label_dct}
-    return label_dct
     for label in label_dct:
         class_accuracy[label] = {'tPos': 0, 'fPos': 0, 'tNeg': 0,
                                  'fNeg': 0, 'cls_size': 0}
