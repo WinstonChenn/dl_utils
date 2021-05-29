@@ -42,17 +42,15 @@ def get_model(device, num_classes, optim_type, lr=0.001, momentum=0.9,
 
 
 def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
-          device, criterion, beta, optimizer, epochs=1, verbose=1, print_every=10):
+          device, criterion, optimizer, beta=1, epochs=1, verbose=1,
+          print_every=10):
     losses = []
     vali_losses = []
     vali_accues = []
 
     # write save dir
     net_str = type(net).__name__
-    loss_str = type(criterion).__name__ 
-    if type(criterion) == nn.CrossEntropyLoss:
-        loss_str += "_0" if criterion.__dict__['_buffers']['weight'] == None else ("_1_{" + str(beta) + "}")
-        
+    loss_str = type(criterion).__name__
     optim_str = type(optimizer).__name__
     lr = optimizer.param_groups[0]['lr']
     gamma = optimizer.param_groups[0]['weight_decay']
@@ -63,9 +61,8 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
     def url_func(epo):
         return os.path.join(
             checkpoint_dir,
-            f"{net_str}_{loss_str}_{optim_str}_lr{lr}_gamma{gamma}_"
+            f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_"
             f"{data_label}_rho{rho}_epoch{epo}.pt")
-    checkpoint_url = url_func(epochs)
 
     # load in saved checkpoints
     start_epoch = 0
