@@ -11,7 +11,10 @@ def accuracy(net, dataloader, device, div=True, eval=True):
     correct = 0
     class_accuracy = {}
     # print(dataloader.dataset.label_dict.keys())
-    for label in dataloader.dataset.label_dict.keys():
+    label_dct = dataloader.dataset.label_dict
+    if div:
+        label_dct = {k//2:label_dct[k] for k in label_dct}
+    for label in label_dct:
         class_accuracy[label] = {'tPos': 0, 'fPos': 0, 'tNeg': 0,
                                  'fNeg': 0, 'cls_size': 0}
     total = 0
@@ -29,12 +32,12 @@ def accuracy(net, dataloader, device, div=True, eval=True):
                 if labels.to(device)[idx] == predicted[idx]:
                     class_accuracy[int(labels.to(device)[idx])]['tPos'] += 1
                 else:
-                    if int(predicted.to(device)[idx]) in dataloader.dataset.label_dict.keys():
+                    if int(predicted.to(device)[idx]) in label_dct.keys():
                         class_accuracy[int(predicted.to(device)[idx])]['fPos'] += 1
                         class_accuracy[int(predicted.to(device)[idx])]['tNeg'] -= 1
                     class_accuracy[int(labels.to(device)[idx])]['fNeg'] += 1
                 # add 1 to everyone true Negative except at `int(labels.to(device)[idx])`
-                for label in dataloader.dataset.label_dict.keys():
+                for label in label_dct.keys():
                     class_accuracy[label]['tNeg'] += 1  # add one to everyone's true negative
                 class_accuracy[int(labels.to(device)[idx])]['tNeg'] -= 1
                 class_accuracy[int(labels.to(device)[idx])]['cls_size'] += 1
@@ -86,14 +89,14 @@ def plot_accuracy(class_accuracy, label_dict, decending=True):
                       for k in class_accuracy.keys()}
 
     # get item at 0 to sort by name, get item at 1 to sort by accuracy
-    sorted_tuples = sorted(label_to_total.items(), key=operator.itemgetter(1),
+    sorted_tuples = sorted(label_to_total.items(), key=operator.itemgetter(0),
                            reverse=decending)
     sorted_dict = {k: v for k, v in sorted_tuples}
 
     width = 0.8
     plt.figure(figsize=(20, 7))  # width:20, height:10
     # [ label_dict[k]  for k in sorted_dict.keys()]
-    plt.bar([label_dict[k] for k in sorted_dict.keys()],
+    plt.bar([label_dict[k*2] for k in sorted_dict.keys()],
             [val[1] for val in sorted_dict.values()], width, color='g',
             align='center')
     plt.xticks(rotation=90)
