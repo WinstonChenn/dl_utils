@@ -95,7 +95,7 @@ def plot_accuracy(class_accuracy, label_dict, decending=True):
     width = 0.8
     plt.figure(figsize=(20, 7))  # width:20, height:10
     # [ label_dict[k]  for k in sorted_dict.keys()]
-    plt.bar([label_dict[k] for k in sorted_dict.keys()],
+    plt.bar([label_dict[k//2] for k in sorted_dict.keys()],
             [val[1] for val in sorted_dict.values()], width, color='g',
             align='center')
     plt.xticks(rotation=90)
