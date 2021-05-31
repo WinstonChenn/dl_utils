@@ -148,8 +148,7 @@ def data_augmentation_X8(data_json):
 def generate_jsonDict(main_json):
     data_ref_arr = main_json["annotations"]
     class_num = main_json["num_classes"]
-
-    json_dict  = {}
+    json_dict = {}
     label_dict = {}
 
     for idx, data_ref in enumerate(data_ref_arr):
@@ -164,7 +163,8 @@ def generate_jsonDict(main_json):
 
 
 def plot_distribution(json_dict, label_dict, decending=True):
-    label_to_length = {k: len(json_dict[k]['annotations']) for k in json_dict.keys()}
+    label_to_length = {k: len(json_dict[k]['annotations'])
+                       for k in json_dict.keys()}
 
     sorted_tuples = sorted(label_to_length.items(),
                            key=operator.itemgetter(1),
