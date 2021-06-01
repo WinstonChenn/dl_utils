@@ -102,6 +102,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
             break
     
     epoch = start_epoch
+    print("File Path:",url_func(start_epoch))
     for epoch in range(start_epoch, epochs):
         net.train()
         t = tq.tqdm(enumerate(train_loader), desc=f"train epoch={epoch}",
