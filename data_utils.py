@@ -104,6 +104,17 @@ def print_random_img_by_dataset(dataset_arr, label_map, n=3):
         fig.show()
 
 
+def print_random_augmented_img(aug_dataset, original_size, label_map):
+    assert len(aug_dataset) % original_size == 0
+    n = len(aug_dataset) // original_size
+    rand_idx = random.randint(0, original_size-1)
+    fig, axes = plt.subplots(1, n, figsize=(8, 8*n))
+    for i in range(n):
+        img, target = aug_dataset[rand_idx+i*original_size]
+        axes[i].imshow(img.permute(1, 2, 0))
+        axes[i].set_title(label_map[target])
+
+
 # data augmentation utils
 def data_augmentation_X8(data_json):
     """perform a data augmentation that expands dataset size by 7"""
