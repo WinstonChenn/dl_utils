@@ -5,6 +5,7 @@ import tqdm.notebook as tq
 from efficientnet_pytorch import EfficientNet
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
 
 sys.path.append(dirname(realpath(__file__)))
 from sam.sam import SAM
@@ -25,6 +26,27 @@ def get_SAM(model_params, lr, momentum, decay):
     return SAM(model_params, base_optimizer, lr=lr, momentum=momentum,
                weight_decay=decay)
 
+def get_lossWeights(beta, num_classes, data_dict):
+    # >>> begin getting weights
+
+    # get dictionary of training data [now expected as parameter]
+
+    # convert to dictionary of quantity of training data per class
+    label_to_quant = {key//2:len(data_dict[key]['annotations']) for key in data_dict}
+
+    # compute weights based on 
+    # https://arxiv.org/pdf/1901.05555.pdf
+    # https://towardsdatascience.com/handling-class-imbalanced-data-using-a-loss-specifically-made-for-it-6e58fd65ffab
+    effective_num = np.zeros(num_classes)
+    for i in label_to_quant:
+      effective_num[i] = label_to_quant[i]
+
+    effective_num = 1 - np.power(beta, effective_num)
+    weights = (1-beta)/effective_num
+    weights = weights/np.sum(weights) * num_classes
+    weights = torch.FloatTensor(weights)
+
+    # <<< finished, acquired weights
 
 def get_model(device, num_classes, optim_type, lr=0.001, momentum=0.9,
               decay=0.0005, loss_weight=None):
@@ -127,3 +149,4 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
 
     # net.load_state_dict(best_state['net'])
     return net, vali_losses, vali_accues
+
