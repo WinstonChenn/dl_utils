@@ -109,7 +109,7 @@ def print_random_augmented_img(aug_dataset, original_size, label_map):
     rand_idx = random.randint(0, original_size-1)
     fig, axes = plt.subplots(1, n, figsize=(8, 8*n))
     for i in range(n):
-        img, target = aug_dataset[rand_idx]
+        img, target = aug_dataset[rand_idx+i*original_size]
         axes[i].imshow(img.permute(1, 2, 0))
         axes[i].set_title(label_map[target])
 
