@@ -104,7 +104,7 @@ def print_random_img_by_dataset(dataset_arr, label_map, n=3):
 
 
 def print_random_augmented_img(aug_dataset, original_size, label_map):
-    assert original_size % len(aug_dataset) == 0
+    assert len(aug_dataset) % original_size == 0
     n = len(aug_dataset) / original_size
     rand_idx = random.randint(0, original_size-1)
     fig, axes = plt.subplots(1, n, figsize=(8, 8*n))
