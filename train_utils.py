@@ -7,7 +7,9 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
-sys.path.append(dirname(realpath(__file__)))
+# LS >>> what is this, winston?
+sys.path.append(dirname(realpath(__file__))) 
+
 from sam.sam import SAM
 from eval_utils import simple_accuracy
 
