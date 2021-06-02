@@ -197,7 +197,7 @@ def get_class_balanced_weights(dataset, aug_factor, n_arr, class_num):
     for _, label in dataset:
         ori_p.append(class_p[label//2]/n_arr[label//2])
     p_arr = ori_p * aug_factor
-    return p_arr
+    return np.array(p_arr)/sum(p_arr)
 
 
 def plot_distribution(json_dict, label_dict, decending=True):
