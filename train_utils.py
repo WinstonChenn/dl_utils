@@ -36,19 +36,19 @@ def get_lossWeights(beta, num_classes, data_dict):
     # convert to dictionary of quantity of training data per class
     label_to_quant = {key//2:len(data_dict[key]['annotations']) for key in data_dict}
 
-    # compute weights based on 
+    # compute weights based on
     # https://arxiv.org/pdf/1901.05555.pdf
     # https://towardsdatascience.com/handling-class-imbalanced-data-using-a-loss-specifically-made-for-it-6e58fd65ffab
     effective_num = np.zeros(num_classes)
     for i in label_to_quant:
-      effective_num[i] = label_to_quant[i]
+        effective_num[i] = label_to_quant[i]
 
     effective_num = 1 - np.power(beta, effective_num)
     weights = (1-beta)/effective_num
     weights = weights/np.sum(weights) * num_classes
     weights = torch.FloatTensor(weights)
+    return weights
 
-    # <<< finished, acquired weights
 
 def get_model(device, num_classes, optim_type, lr=0.001, momentum=0.9,
               decay=0.0005, loss_weight=None):

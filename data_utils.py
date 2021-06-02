@@ -174,18 +174,23 @@ def generate_jsonDict(main_json):
     return json_dict, label_dict
 
 
-def balance_distribution(data_dict, q_param, train_dataset):
-    weights = np.zeros(50)
-    for k in data_dict:
-        weights[k//2] = len(data_dict[k]['annotations'])
-    weights = np.power(weights, q_param)
-    denominator = np.sum(weights)
-    weights = weights/denominator  # finished generating prob by class.
+def get_resample_prob_by_class(n_arr, class_num, q):
+    assert class_num == len(n_arr)
+    denom = np.sum(np.power(n_arr, q))
+    prob_arr = np.power(n_arr, q)/denom
 
-    weight_instance = np.zeros(len(train_dataset))
-    for idx, item in enumerate(train_dataset):
-        weight_instance[idx] = weights[item[1]//2]
-    return weight_instance
+    return prob_arr
+
+
+def get_resample_prob_by_instance(dataset, aug_factor, q, n_arr, class_num):
+    ori_p = []
+    class_p = get_resample_prob_by_class(n_arr, class_num, q)
+    for _, label in dataset:
+        ori_p.append(class_p[label//2])
+    p_arr = ori_p * aug_factor
+
+    return p_arr
+
 
 def plot_distribution(json_dict, label_dict, decending=True):
     label_to_length = {k: len(json_dict[k]['annotations'])
