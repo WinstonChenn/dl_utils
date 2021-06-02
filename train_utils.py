@@ -101,7 +101,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
             vali_losses = state['vali_losses']
             vali_accues = state['vali_accues']
             break
-    
+
     epoch = start_epoch
     print("File Path:",url_func(start_epoch))
     for epoch in range(start_epoch, epochs):

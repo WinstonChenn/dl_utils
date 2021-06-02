@@ -188,7 +188,15 @@ def get_resample_prob_by_instance(dataset, aug_factor, q, n_arr, class_num):
     for _, label in dataset:
         ori_p.append(class_p[label//2])
     p_arr = ori_p * aug_factor
+    return p_arr
 
+
+def get_class_balanced_weights(dataset, aug_factor, n_arr, class_num):
+    class_p = get_resample_prob_by_class(n_arr, class_num, q=0)
+    ori_p = []
+    for _, label in dataset:
+        ori_p.append(class_p[label//2]/n_arr[label//2])
+    p_arr = ori_p * aug_factor
     return p_arr
 
 
