@@ -144,6 +144,8 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
         curr_save_url = url_func(epoch+1)
         prev_save_url = url_func(epoch)
         print(f"save model checkpoint at={curr_save_url}")
+        if not os.path.exists(checkpoint_dir):
+            os.makedirs(checkpoint_dir)
         torch.save(state, curr_save_url)
         if os.path.exists(prev_save_url) and epoch % 10 != 0:
             os.remove(prev_save_url)
