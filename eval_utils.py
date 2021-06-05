@@ -16,23 +16,17 @@ def get_class_type(n_arr):
     return type_arr
 
 
-def data_dict_by_type(data_dict):
+def data_dict_by_type(data_dict, type_arr):
     type_dict = {"many": {"annotations": [], "num_classes": 0},
                  "medium": {"annotations": [], "num_classes": 0},
                  "few": {"annotations": [], "num_classes": 0}}
 
     for class_dict in data_dict.values():
         data_arr = class_dict["annotations"]
+        class_idx = data_arr[0]['category_id'] // 2
         num_classes = class_dict["num_classes"]
-        if len(data_arr) > 100:
-            type_dict["many"]["annotations"] += data_arr
-            type_dict["many"]["num_classes"] += num_classes
-        elif len(data_arr) >= 20:
-            type_dict["medium"]["annotations"] += data_arr
-            type_dict["medium"]["num_classes"] += num_classes
-        else:
-            type_dict["few"]["annotations"] += data_arr
-            type_dict["few"]["num_classes"] += num_classes
+        type_dict[type_arr[class_idx]]["annotations"] += data_arr
+        type_dict[type_arr[class_idx]]["num_classes"] += num_classes
     return type_dict
 
 
