@@ -21,7 +21,7 @@ def data_dict_by_type(data_dict):
                  "medium": {"annotations": [], "num_classes": 0},
                  "few": {"annotations": [], "num_classes": 0}}
 
-    for class_dict in data_dict:
+    for class_dict in data_dict.values():
         data_arr = class_dict["annotations"]
         num_classes = class_dict["num_classes"]
         if len(data_arr) > 100:
