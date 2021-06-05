@@ -50,11 +50,12 @@ def get_lossWeights(beta, num_classes, data_dict):
     return weights
 
 
-def get_model(device, num_classes, optim_type, lr=0.001, momentum=0.9,
-              decay=0.0005, loss_weight=None):
+def get_model(device, num_classes, optim_type, model=None, lr=0.001, 
+              momentum=0.9, decay=0.0005, loss_weight=None):
     """optim_type == SGD | Adam | SAM"""
-    model = EfficientNet.from_name('efficientnet-b0')
-    model._fc = nn.Linear(1280, num_classes)
+    if model is None:
+        model = EfficientNet.from_name('efficientnet-b0')
+        model._fc = nn.Linear(1280, num_classes)
     criterion = nn.CrossEntropyLoss(weight=loss_weight)
     optim_dict = {"SGD": get_SGD, "Adam": get_Adam, "SAM": get_SAM}
     assert optim_type in optim_dict, "invalid optim_type"
@@ -63,6 +64,7 @@ def get_model(device, num_classes, optim_type, lr=0.001, momentum=0.9,
     criterion.to(device)
 
     return model, criterion, optimizer
+                     
 
 
 def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
