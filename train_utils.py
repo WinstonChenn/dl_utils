@@ -156,3 +156,36 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
     # net.load_state_dict(best_state['net'])
     return net, vali_losses, vali_accues
 
+
+def load_cRT_model(root_dir, net_str, loss_str, optim_str, rho, lr, gamma, beta, 
+                   epochs, num_classes, optim_type, data_label):
+    checkpoint_dir = os.path.join(root_dir, "checkpoints")
+    model_base = f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_" \
+                f"{data_label}_rho{rho}_epoch{epochs}"
+    model_url = os.path.join(checkpoint_dir, f"{model_base}.pt")
+    if not os.path.exists(model_url):
+        print(f"model url: {model_url} doesn't exist")
+        return
+    print(f"load model from={model_url}")
+    print(f"model params: net={net_str}\tloss={loss_str}\toptim={optim_str}"
+            f"\tepochs={epochs}\tlr={lr}\tweight_decay={float(gamma)}")
+    state = torch.load(model_url)
+    model = EfficientNet.from_name('efficientnet-b0')
+    model._fc = nn.Linear(1280, num_classes)
+    model.load_state_dict(state['net'])
+
+    cRT_folder = os.path.join(checkpoint_dir, f"{model_base}_cRT")
+
+    if not os.path.exists(cRT_folder):
+        os.makedirs(cRT_folder)
+
+    # fix representation & randomize classifier
+    for param in model.parameters():
+        param.requires_grad = False
+    model._fc = nn.Linear(1280, num_classes).to(device)
+    model._dropout = nn.Dropout(p=0.2, inplace=False).to(device)
+    model._avg_pooling = nn.AdaptiveAvgPool2d(output_size=1).to(device)
+    model._bn1 = nn.BatchNorm2d(1280, eps=0.001, momentum=0.010000000000000009, 
+                            affine=True, track_running_stats=True).to(device)
+    model.train()
+    return model, cRT_folder
