@@ -4,6 +4,46 @@ import matplotlib.pyplot as plt
 import torch
 
 
+def get_class_type(n_arr):
+    type_arr = []
+    for n in n_arr:
+        if n > 100:
+            type_arr.append("many")
+        elif n >= 20:
+            type_arr.append("medium")
+        else:
+            type_arr.append("few")
+    return type_arr
+
+
+def data_dict_by_type(data_dict):
+    type_dict = {"many": {"annotations": [], "num_classes": 0},
+                 "medium": {"annotations": [], "num_classes": 0},
+                 "few": {"annotations": [], "num_classes": 0}}
+
+    for class_dict in data_dict:
+        data_arr = class_dict["annotations"]
+        num_classes = class_dict["num_classes"]
+        if len(data_arr) > 100:
+            type_dict["many"]["annotations"] += data_arr
+            type_dict["many"]["num_classes"] += num_classes
+        elif len(data_arr) >= 20:
+            type_dict["medium"]["annotations"] += data_arr
+            type_dict["medium"]["num_classes"] += num_classes
+        else:
+            type_dict["few"]["annotations"] += data_arr
+            type_dict["few"]["num_classes"] += num_classes
+    return type_dict
+
+
+def accuracy_by_type(net, dataloader, device, div=True, eval=True):
+    net.to(device)
+    if eval:
+        net.eval()
+    accuracy_dict = {"many": 0, "medium": 0, "few": 0}
+
+
+
 def accuracy(net, dataloader, device, div=True, eval=True):
     net.to(device)
     if eval:
