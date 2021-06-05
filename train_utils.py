@@ -157,8 +157,8 @@ def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
     return net, vali_losses, vali_accues
 
 
-def load_cRT_model(root_dir, net_str, loss_str, optim_str, rho, lr, gamma, beta, 
-                   epochs, num_classes, optim_type, data_label):
+def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
+                   gamma, beta, epochs, num_classes, optim_type, data_label):
     checkpoint_dir = os.path.join(root_dir, "checkpoints")
     model_base = f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_" \
                 f"{data_label}_rho{rho}_epoch{epochs}"
