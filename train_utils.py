@@ -170,7 +170,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
 
 
 def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
-                   gamma, beta, epochs, num_classes, optim_type, data_label):
+                   gamma, beta, epochs, num_classes, optim_type, data_label, cRT=True):
     checkpoint_dir = os.path.join(root_dir, "checkpoints")
     hidden_count_dict = {
         "efficientnet-b0": 1280,
@@ -203,19 +203,19 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
     model.load_state_dict(state['net'])
 
     cRT_folder = os.path.join(checkpoint_dir, f"{model_base}_cRT")
+    if cRT:
+        if not os.path.exists(cRT_folder):
+            os.makedirs(cRT_folder)
 
-    if not os.path.exists(cRT_folder):
-        os.makedirs(cRT_folder)
-
-    # fix representation & randomize classifier
-    for param in model.parameters():
-        param.requires_grad = False
-    model._fc = nn.Linear(hidden_count_dict[net_str], num_classes).to(device)
-    model._dropout = nn.Dropout(p=0.2, inplace=False).to(device)
-    model._avg_pooling = nn.AdaptiveAvgPool2d(output_size=1).to(device)
-    model._bn1 = nn.BatchNorm2d(
-        hidden_count_dict[net_str], eps=0.001,
-        momentum=0.010000000000000009,
-        affine=True, track_running_stats=True).to(device)
-    model.train()
+        # fix representation & randomize classifier
+        for param in model.parameters():
+            param.requires_grad = False
+        model._fc = nn.Linear(hidden_count_dict[net_str], num_classes).to(device)
+        model._dropout = nn.Dropout(p=0.2, inplace=False).to(device)
+        model._avg_pooling = nn.AdaptiveAvgPool2d(output_size=1).to(device)
+        model._bn1 = nn.BatchNorm2d(
+            hidden_count_dict[net_str], eps=0.001,
+            momentum=0.010000000000000009,
+            affine=True, track_running_stats=True).to(device)
+        model.train()
     return model, cRT_folder
