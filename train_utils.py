@@ -173,7 +173,6 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
                    gamma, beta, epochs, num_classes, optim_type, data_label):
     checkpoint_dir = os.path.join(root_dir, "checkpoints")
     hidden_count_dict = {
-        "EfficientNet": 1280,
         "efficientnet-b0": 1280,
         "efficientnet-b1": 1280,
         "efficientnet-b2": 1408,
@@ -185,7 +184,11 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
         "efficientnet-b8": 2816,
         "efficientnet-l2": 5504
     }
-    model_base = f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_" \
+    if net_str == "efficientnet-b0":
+        cp_net_str = "EfficientNet"
+    else:
+        cp_net_str = net_str
+    model_base = f"{cp_net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_" \
                  f"{data_label}_rho{rho}_epoch{epochs}"
     model_url = os.path.join(checkpoint_dir, f"{model_base}.pt")
     if not os.path.exists(model_url):
