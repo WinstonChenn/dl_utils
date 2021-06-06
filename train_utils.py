@@ -173,6 +173,7 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
                    gamma, beta, epochs, num_classes, optim_type, data_label):
     checkpoint_dir = os.path.join(root_dir, "checkpoints")
     hidden_count_dict = {
+        "EfficientNet": 1280,
         "efficientnet-b0": 1280,
         "efficientnet-b1": 1280,
         "efficientnet-b2": 1408,
