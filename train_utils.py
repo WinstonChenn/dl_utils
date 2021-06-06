@@ -172,25 +172,6 @@ def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
 def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
                    gamma, beta, epochs, num_classes, optim_type, data_label):
     checkpoint_dir = os.path.join(root_dir, "checkpoints")
-    model_base = f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_" \
-                 f"{data_label}_rho{rho}_epoch{epochs}"
-    model_url = os.path.join(checkpoint_dir, f"{model_base}.pt")
-    if not os.path.exists(model_url):
-        print(f"model url: {model_url} doesn't exist")
-        return
-    print(f"load model from={model_url}")
-    print(f"model params: net={net_str}\tloss={loss_str}\toptim={optim_str}"
-          f"\tepochs={epochs}\tlr={lr}\tweight_decay={float(gamma)}")
-    state = torch.load(model_url)
-    model = EfficientNet.from_name('efficientnet-b0')
-    model._fc = nn.Linear(1280, num_classes)
-    model.load_state_dict(state['net'])
-
-    cRT_folder = os.path.join(checkpoint_dir, f"{model_base}_cRT")
-
-    if not os.path.exists(cRT_folder):
-        os.makedirs(cRT_folder)
-
     hidden_count_dict = {
         "efficientnet-b0": 1280,
         "efficientnet-b1": 1280,
@@ -203,6 +184,24 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
         "efficientnet-b8": 2816,
         "efficientnet-l2": 5504
     }
+    model_base = f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_" \
+                 f"{data_label}_rho{rho}_epoch{epochs}"
+    model_url = os.path.join(checkpoint_dir, f"{model_base}.pt")
+    if not os.path.exists(model_url):
+        print(f"model url: {model_url} doesn't exist")
+        return
+    print(f"load model from={model_url}")
+    print(f"model params: net={net_str}\tloss={loss_str}\toptim={optim_str}"
+          f"\tepochs={epochs}\tlr={lr}\tweight_decay={float(gamma)}")
+    state = torch.load(model_url)
+    model = EfficientNet.from_name('efficientnet-b0')
+    model._fc = nn.Linear(hidden_count_dict[net_str], num_classes)
+    model.load_state_dict(state['net'])
+
+    cRT_folder = os.path.join(checkpoint_dir, f"{model_base}_cRT")
+
+    if not os.path.exists(cRT_folder):
+        os.makedirs(cRT_folder)
 
     # fix representation & randomize classifier
     for param in model.parameters():
