@@ -79,7 +79,7 @@ def get_model(device, num_classes, net_str, optim_type, model=None, lr=0.001,
 
 
 def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
-          rho, device, criterion, optimizer, beta=1, epochs=1):
+          rho, device, criterion, optimizer, beta=0.0, epochs=1):
     losses = []
     vali_losses = []
     vali_accues = []
