@@ -53,9 +53,21 @@ def get_lossWeights(beta, num_classes, data_dict):
 def get_model(device, num_classes, net_str, optim_type, model=None, lr=0.001,
               momentum=0.9, decay=0.0005, loss_weight=None):
     """optim_type == SGD | Adam | SAM"""
+    hidden_count_dict = {
+        "efficientnet-b0": 1280,
+        "efficientnet-b1": 1280,
+        "efficientnet-b4": 1408,
+        "efficientnet-b3": 1536,
+        "efficientnet-b4": 1792,
+        "efficientnet-b5": 2048,
+        "efficientnet-b6": 2304,
+        "efficientnet-b7": 2560,
+        "efficientnet-b8": 2816,
+        "efficientnet-l2": 5504
+    }
     if model is None:
         model = EfficientNet.from_name(net_str)
-        model._fc = nn.Linear(1280, num_classes)
+        model._fc = nn.Linear(hidden_count_dict[net_str], num_classes)
     criterion = nn.CrossEntropyLoss(weight=loss_weight)
     optim_dict = {"SGD": get_SGD, "Adam": get_Adam, "SAM": get_SAM}
     assert optim_type in optim_dict, "invalid optim_type"
