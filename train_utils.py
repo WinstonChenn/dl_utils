@@ -194,7 +194,7 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
     print(f"model params: net={net_str}\tloss={loss_str}\toptim={optim_str}"
           f"\tepochs={epochs}\tlr={lr}\tweight_decay={float(gamma)}")
     state = torch.load(model_url)
-    model = EfficientNet.from_name('efficientnet-b0')
+    model = EfficientNet.from_name(net_str)
     model._fc = nn.Linear(hidden_count_dict[net_str], num_classes)
     model.load_state_dict(state['net'])
 
