@@ -50,11 +50,11 @@ def get_lossWeights(beta, num_classes, data_dict):
     return weights
 
 
-def get_model(device, num_classes, optim_type, model=None, lr=0.001, 
+def get_model(device, num_classes, net_str, optim_type, model=None, lr=0.001,
               momentum=0.9, decay=0.0005, loss_weight=None):
     """optim_type == SGD | Adam | SAM"""
     if model is None:
-        model = EfficientNet.from_name('efficientnet-b0')
+        model = EfficientNet.from_name(net_str)
         model._fc = nn.Linear(1280, num_classes)
     criterion = nn.CrossEntropyLoss(weight=loss_weight)
     optim_dict = {"SGD": get_SGD, "Adam": get_Adam, "SAM": get_SAM}
@@ -64,17 +64,17 @@ def get_model(device, num_classes, optim_type, model=None, lr=0.001,
     criterion.to(device)
 
     return model, criterion, optimizer
-                     
 
 
-def train(checkpoint_dir, net, train_loader, vali_loader, data_label, rho,
-          device, criterion, optimizer, beta=1, epochs=1):
+def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
+          rho, device, criterion, optimizer, beta=1, epochs=1):
     losses = []
     vali_losses = []
     vali_accues = []
 
     # write save dir
-    net_str = type(net).__name__
+    if net_str == "efficientnet-b0":
+        net_str = "EfficientNet"
     loss_str = type(criterion).__name__
     optim_str = type(optimizer).__name__
     lr = optimizer.param_groups[0]['lr']
@@ -186,6 +186,6 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
     model._dropout = nn.Dropout(p=0.2, inplace=False).to(device)
     model._avg_pooling = nn.AdaptiveAvgPool2d(output_size=1).to(device)
     model._bn1 = nn.BatchNorm2d(1280, eps=0.001, momentum=0.010000000000000009, 
-                            affine=True, track_running_stats=True).to(device)
+                                affine=True, track_running_stats=True).to(device)
     model.train()
     return model, cRT_folder
