@@ -56,7 +56,7 @@ def get_model(device, num_classes, net_str, optim_type, model=None, lr=0.001,
     hidden_count_dict = {
         "efficientnet-b0": 1280,
         "efficientnet-b1": 1280,
-        "efficientnet-b4": 1408,
+        "efficientnet-b2": 1408,
         "efficientnet-b3": 1536,
         "efficientnet-b4": 1792,
         "efficientnet-b5": 2048,
