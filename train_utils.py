@@ -90,16 +90,23 @@ def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
     loss_str = type(criterion).__name__
     optim_str = type(optimizer).__name__
     lr = optimizer.param_groups[0]['lr']
+    momentum = optimizer.param_groups[0]["momentum"]
     gamma = optimizer.param_groups[0]['weight_decay']
     assert lr is not None and gamma is not None, "optimizer parameter error"
     print(f"training params: net={net_str}\tloss={loss_str}\toptim={optim_str}"
           f"\tepochs={epochs}\tlr={lr}\tweight_decay={float(gamma)}")
 
     def url_func(epo):
-        return os.path.join(
-            checkpoint_dir,
-            f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_"
-            f"{data_label}_rho{rho}_epoch{epo}.pt")
+        if momentum == 0.9:
+            return os.path.join(
+                checkpoint_dir,
+                f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_"
+                f"{data_label}_rho{rho}_epoch{epo}.pt")
+        else:
+            return os.path.join(
+                checkpoint_dir,
+                f"{net_str}_{loss_str}_beta{beta}_{optim_str}_lr{lr}_gamma{gamma}_"
+                f"momentum{momentum}_{data_label}_rho{rho}_epoch{epo}.pt")
 
     # load in saved checkpoints
     start_epoch = 0
