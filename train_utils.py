@@ -13,7 +13,6 @@ sys.path.append(dirname(realpath(__file__)))
 from sam.sam import SAM
 from eval_utils import simple_accuracy
 
-
 def get_SGD(model_params, lr, momentum, decay):
     return optim.SGD(model_params, lr=lr, momentum=momentum,
                      weight_decay=decay)
