@@ -26,6 +26,25 @@ class LocalLinear(nn.Module):
 
         return x
 
+# A memory-efficient implementation of Swish function
+class SwishImplementation(torch.autograd.Function):
+    @staticmethod
+    def forward(ctx, i):
+        result = i * torch.sigmoid(i)
+        ctx.save_for_backward(i)
+        return result
+
+    @staticmethod
+    def backward(ctx, grad_output):
+        i = ctx.saved_tensors[0]
+        sigmoid_i = torch.sigmoid(i)
+        return grad_output * (sigmoid_i * (1 + i * (1 - sigmoid_i)))
+
+
+class MemoryEfficientSwish(nn.Module):
+    def forward(self, x):
+        return SwishImplementation.apply(x)
+
 
 class TauEnsembleEfficientNet(nn.Module):
     def __init__(self, base_net, tau_arr, num_classes, device):
@@ -40,7 +59,8 @@ class TauEnsembleEfficientNet(nn.Module):
         self.normB = torch.norm(self.weights, 2, 1)
         self.ensemble_classifier = LocalLinear(num_classes, len(tau_arr),
                                                init_val=None).to(device)
-                                          
+        self.swish = MemoryEfficientSwish()
+                            
     def parameters(self):
         for param in self.ensemble_classifier.parameters():
             yield param
@@ -70,5 +90,5 @@ class TauEnsembleEfficientNet(nn.Module):
                 else:
                     ensemble_logit = torch.dstack((ensemble_logit, logit))
 
-        x = self.ensemble_classifier(ensemble_logit).squeeze()
+        x = self.swish(self.ensemble_classifier(ensemble_logit).squeeze())
         return x
