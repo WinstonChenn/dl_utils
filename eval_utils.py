@@ -154,7 +154,8 @@ def tau_sweep(net, tau_arr, device, full_loader, many_loader,
         if few_loader is not None:
             few_accu = classifier_simple_accuracy(net, classifier,
                                                   few_loader, device)
-            print(f"few class accuracy: {few_accu:.3f}\t")
+            print(f"few class accuracy: {few_accu:.3f}\t", end="")
+        print()
 
 
 def smooth(x, size=50):
