@@ -98,6 +98,36 @@ def simple_accuracy(net, dataloader, device, div=True, eval=True):
     return correct/total
 
 
+def classifier_simple_accuracy(net, classifier, dataloader, device, div=True,
+                               eval=True):
+    activation = {}
+    def get_activation(name):
+        def hook(model, input, output):
+            activation[name] = output.detach()
+        return hook
+    net._conv_head.register_forward_hook(get_activation('_conv_head'))
+
+    net.to(device)
+    if eval:
+        net.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for batch in dataloader:
+            images, labels = batch
+            if div:
+                labels = labels//2
+            net(images.to(device))
+            rep_out = activation['_conv_head']
+            outputs = classifier(rep_out.to(device))
+            _, predicted = torch.max(outputs, 1)
+            total += labels.size(0)
+            correct += (predicted == labels.to(device)).sum().item()
+    return correct/total
+
+
+
+
 def smooth(x, size=50):
     return np.convolve(x, np.ones(size)/size, mode='valid')
 
