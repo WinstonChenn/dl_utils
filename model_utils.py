@@ -35,28 +35,22 @@ class TauEnsembleEfficientNet(nn.Module):
         self.tau_arr = tau_arr
         self.num_classes = num_classes
         self.device = device
-        self.activation = {}
-        def get_activation(name):
-            def hook(model, input, output):
-                self.activation[name] = output.detach()
-            return hook
+
         self.weights = list(base_net._fc.parameters())[0].data.clone()
         self.normB = torch.norm(self.weights, 2, 1)
-        self.base_net._conv_head.register_forward_hook(
-            get_activation('_conv_head'))
         self.ensemble_classifier = LocalLinear(num_classes, len(tau_arr),
                                                init_val=None).to(device)
-
-    def parameters(self, only_trainable=True):
+                                          
+    def parameters(self):
         for param in self.ensemble_classifier.parameters():
             yield param
 
     def forward(self, x):
         with torch.no_grad():
-            self.base_net(x.to(self.device))
+            # self.base_net(x.to(self.device))
             rep = self.base_net._dropout(self.base_net._avg_pooling(
-                self.base_net._bn1(self.activation['_conv_head']
-                                .to(self.device)))).squeeze()
+                self.base_net.extract_features(
+                    x.to(self.device))).flatten(start_dim=1)).squeeze()
 
             ensemble_logit = None
             for tau in self.tau_arr:
@@ -75,5 +69,6 @@ class TauEnsembleEfficientNet(nn.Module):
                     ensemble_logit = logit
                 else:
                     ensemble_logit = torch.dstack((ensemble_logit, logit))
+
         x = self.ensemble_classifier(ensemble_logit).squeeze()
         return x
