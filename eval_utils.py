@@ -1,3 +1,4 @@
+import copy
 import operator
 import numpy as np
 import matplotlib.pyplot as plt
@@ -100,12 +101,6 @@ def simple_accuracy(net, dataloader, device, div=True, eval=True):
 
 def classifier_simple_accuracy(net, classifier, dataloader, device, div=True,
                                eval=True):
-    activation = {}
-    def get_activation(name):
-        def hook(model, input, output):
-            activation[name] = output.detach()
-        return hook
-    net._conv_head.register_forward_hook(get_activation('_conv_head'))
 
     net.to(device)
     if eval:
@@ -117,8 +112,9 @@ def classifier_simple_accuracy(net, classifier, dataloader, device, div=True,
             images, labels = batch
             if div:
                 labels = labels//2
-            net(images.to(device))
-            rep_out = activation['_conv_head']
+            rep_out = net._dropout(net._avg_pooling(
+                net.extract_features(images.to(device)))
+                    .flatten(start_dim=1)).squeeze()
             outputs = classifier(rep_out.to(device))
             _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
@@ -126,6 +122,39 @@ def classifier_simple_accuracy(net, classifier, dataloader, device, div=True,
     return correct/total
 
 
+def tau_sweep(net, tau_arr, device, full_loader, many_loader, 
+              medium_loader=None, few_loader=None):
+    weights = list(net._fc.parameters())[0].data.clone()
+    normB = torch.norm(weights, 2, 1)
+
+    for p in tau_arr:
+        net.to(device)
+        ws = weights.clone()
+
+        for i in range(weights.size(0)):
+            ws[i] = ws[i] / torch.pow(normB[i], p)
+        fc = copy.deepcopy(net._fc)
+        list(fc.parameters())[0].data = ws.to(device)
+        list(fc.parameters())[1].data = torch.zeros(50).to(device)
+
+        def classifier(rep):
+            return net._swish(fc(rep))
+
+        print(f"tau={p:.3f}\t", end="")
+        overall_accu = classifier_simple_accuracy(net, classifier, full_loader,
+                                                  device)
+        print(f"overall accuracy: {overall_accu:.3f}\t", end="")
+        many_accu = classifier_simple_accuracy(net, classifier, many_loader,
+                                               device)
+        print(f"many class accuracy: {many_accu:.3f}\t", end="")
+        if medium_loader is not None:
+            medium_accu = classifier_simple_accuracy(net, classifier,
+                                                     medium_loader, device)
+            print(f"medium class accuracy: {medium_accu:.3f}\t", end="")
+        if few_loader is not None:
+            few_accu = classifier_simple_accuracy(net, classifier,
+                                                  few_loader, device)
+            print(f"few class accuracy: {few_accu:.3f}\t")
 
 
 def smooth(x, size=50):
