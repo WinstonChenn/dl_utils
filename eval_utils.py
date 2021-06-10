@@ -221,11 +221,7 @@ def get_confusion_matrix(class_num, net, test_loader, device, div=True,
     return mat
 
 
-def bagging_simple_accuracy(baggingnet, dataloader, device, div=True,
-                            eval=True):
-    baggingnet.to(device)
-    if eval:
-        baggingnet.eval()
+def bagging_simple_accuracy(baggingnet, dataloader, device, div=True):
     correct = 0
     total = 0
     with torch.no_grad():
