@@ -172,3 +172,16 @@ class TauLogitEnsembleEfficientNet(nn.Module):
 
         x = self.out_act(self.ensemble_classifier(ensemble_logit).squeeze())
         return x
+
+
+class TauDivdeAndConquerClassifier(nn.Module):
+    def __init__(self, divider, classifier_arr):
+        self.divider = divider
+        self.classifier_arr = classifier_arr
+
+    def forward(self, x):
+        div = self.divider(x)
+        assert div >= 0 and div < len(classifier_arr)-1, \
+            "not sufficient number of classifier"
+        x = classifier_arr[div][x]
+        return x
