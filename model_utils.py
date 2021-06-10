@@ -59,7 +59,7 @@ class TauEnsembleEfficientNet(nn.Module):
         self.normB = torch.norm(self.weights, 2, 1)
         self.ensemble_classifier = LocalLinear(num_classes, len(tau_arr),
                                                init_val=None).to(device)
-        self.swish = MemoryEfficientSwish()
+        self.out_act = nn.ReLU()
                             
     def parameters(self):
         for param in self.ensemble_classifier.parameters():
@@ -90,5 +90,5 @@ class TauEnsembleEfficientNet(nn.Module):
                 else:
                     ensemble_logit = torch.dstack((ensemble_logit, logit))
 
-        x = self.swish(self.ensemble_classifier(ensemble_logit).squeeze())
+        x = self.out_act(self.ensemble_classifier(ensemble_logit).squeeze())
         return x
