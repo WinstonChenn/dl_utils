@@ -11,10 +11,12 @@ import numpy as np
 
 # dataset object
 class Cifar50Dataset(Dataset):
-    def __init__(self, cifar_json, transform):
+
+    def __init__(self, cifar_json, transform, label_type_arr=None):
         self.class_num = cifar_json['num_classes']
         self.annotations = cifar_json['annotations']
         self.transform = transform
+        self.label_type_arr = label_type_arr
 
         self.label_dict = {}
         for idx, data_ref in enumerate(self.annotations):
@@ -29,7 +31,10 @@ class Cifar50Dataset(Dataset):
     def __getitem__(self, idx):
         img_path = self.annotations[idx]['fpath']
         label_id = self.annotations[idx]['category_id']
-        # label = self.annotations[idx]['category']
+        
+        if self.label_type_arr is not None:
+            assert label_id % 2 == 0
+            label_id = self.label_type_arr[label_id // 2]
 
         image = Image.open(img_path)
         if self.transform:
@@ -116,7 +121,7 @@ def print_random_augmented_img(aug_dataset, original_size, label_map):
 
 
 # data augmentation utils
-def data_augmentation_X8(data_json):
+def data_augmentation_X8(data_json, label_type_arr=None):
     """perform a data augmentation that expands dataset size by 7"""
     tt_transform = transforms.Compose([transforms.ToTensor()])
     rh_transform = transforms.Compose([transforms.RandomHorizontalFlip(p=1),
@@ -141,14 +146,14 @@ def data_augmentation_X8(data_json):
     re_transform = transforms.Compose([
         transforms.ToTensor(), transforms.RandomErasing(p=1)])
 
-    dataset_og = Cifar50Dataset(data_json, tt_transform)
-    dataset_rh = Cifar50Dataset(data_json, rh_transform)
-    dataset_rv = Cifar50Dataset(data_json, rv_transform)
-    dataset_ra = Cifar50Dataset(data_json, ra_transform)
-    dataset_rr = Cifar50Dataset(data_json, rr_transform)
-    dataset_cj = Cifar50Dataset(data_json, cj_transform)
-    dataset_rp = Cifar50Dataset(data_json, rp_transform)
-    dataset_re = Cifar50Dataset(data_json, re_transform)
+    dataset_og = Cifar50Dataset(data_json, tt_transform, label_type_arr)
+    dataset_rh = Cifar50Dataset(data_json, rh_transform, label_type_arr)
+    dataset_rv = Cifar50Dataset(data_json, rv_transform, label_type_arr)
+    dataset_ra = Cifar50Dataset(data_json, ra_transform, label_type_arr)
+    dataset_rr = Cifar50Dataset(data_json, rr_transform, label_type_arr)
+    dataset_cj = Cifar50Dataset(data_json, cj_transform, label_type_arr)
+    dataset_rp = Cifar50Dataset(data_json, rp_transform, label_type_arr)
+    dataset_re = Cifar50Dataset(data_json, re_transform, label_type_arr)
 
     dataset_arr = [dataset_og, dataset_rh, dataset_rv, dataset_ra, dataset_rr,
                    dataset_cj, dataset_rp, dataset_re]
