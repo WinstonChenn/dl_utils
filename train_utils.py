@@ -231,3 +231,16 @@ def load_cRT_model(root_dir, device, net_str, loss_str, optim_str, rho, lr,
             affine=True, track_running_stats=True).to(device)
         model.train()
     return model, cRT_folder
+
+
+def tau_norm(net, tau, num_classes, device):
+    tau_net = copy.deepcopy(net)
+    weights = list(tau_net._fc.parameters())[0].data.clone()
+    normB = torch.norm(weights, 2, 1)
+    ws = weights.clone()
+    for i in range(weights.size(0)):
+        ws[i] = ws[i] / torch.pow(normB[i], tau)
+    list(tau_net._fc.parameters())[0].data = ws.to(device)
+    list(tau_net._fc.parameters())[1].data = torch.zeros(num_classes).to(device)
+
+    return tau_net
