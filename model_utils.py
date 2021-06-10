@@ -124,3 +124,51 @@ class TauBaggingEfficientNet:
             else:
                 ensemble_logit = torch.dstack((ensemble_logit, logit))
         return torch.mode(ensemble_logit.argmax(1), 1)[0]
+
+
+class TauLogitEnsembleEfficientNet(nn.Module):
+    def __init__(self, base_net, tau_arr, num_classes, device):
+        super(TauLogitEnsembleEfficientNet, self).__init__()
+        self.base_net = base_net
+        self.base_net.to(device)
+        self.tau_arr = tau_arr
+        self.num_classes = num_classes
+        self.device = device
+
+        self.weights = list(base_net._fc.parameters())[0].data.clone()
+        self.normB = torch.norm(self.weights, 2, 1)
+        self.ensemble_classifier = nn.Linear(len(tau_arr)*num_classes, 
+                                             num_classes).to(device)
+        self.out_act = nn.Sigmoid()
+
+    def parameters(self):
+        for param in self.ensemble_classifier.parameters():
+            yield param
+
+    def forward(self, x):
+        with torch.no_grad():
+            # self.base_net(x.to(self.device))
+            rep = self.base_net._dropout(self.base_net._avg_pooling(
+                self.base_net.extract_features(
+                    x.to(self.device))).flatten(start_dim=1)).squeeze()
+
+            ensemble_logit = None
+            for tau in self.tau_arr:
+                ws = self.weights.clone()
+                for i in range(self.weights.size(0)):
+                    ws[i] = ws[i] / torch.pow(self.normB[i], tau)
+                fc = copy.deepcopy(self.base_net._fc)
+                list(fc.parameters())[0].data = ws.to(self.device)
+                list(fc.parameters())[1].data = torch.zeros(50).to(self.device)
+
+                def classifier(rep):
+                    return self.base_net._swish(fc(rep))
+                logit = classifier(rep)
+                assert logit.shape[1] == self.num_classes
+                if ensemble_logit is None:
+                    ensemble_logit = logit
+                else:
+                    ensemble_logit = torch.hstack((ensemble_logit, logit))
+
+        x = self.out_act(self.ensemble_classifier(ensemble_logit).squeeze())
+        return x
