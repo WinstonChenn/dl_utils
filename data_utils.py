@@ -42,6 +42,18 @@ class Cifar50Dataset(Dataset):
 
         return image, label_id
 
+def class2class_type(class_n_arr, num_classes):
+    class_type_arr = train_n_arr.copy()
+    assert len(class_n_arr) == num_classes
+    for i in range(num_classes):
+        if class_n_arr[i] > 100:
+            class_type_arr[i] = 0
+        elif class_n_arr[i] >= 20:
+            class_type_arr[i] = 1
+        else:
+            class_type_arr[i] = 2
+    return class_type_arr
+
 
 # utils for original cifar100 dataset
 def unpickle(file):
