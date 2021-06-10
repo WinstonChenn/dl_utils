@@ -92,3 +92,35 @@ class TauEnsembleEfficientNet(nn.Module):
 
         x = self.out_act(self.ensemble_classifier(ensemble_logit).squeeze())
         return x
+
+class TauBaggingEfficientNet:
+    def __init__(self, base_net, tau_arr, device):
+        self.base_net = base_net.to(device)
+        self.tau_arr = tau_arr
+        self.device = device
+
+        self.weights = list(base_net._fc.parameters())[0].data.clone()
+        self.normB = torch.norm(self.weights, 2, 1)
+
+    def predict(self, x):
+        rep = self.base_net._dropout(self.base_net._avg_pooling(
+            self.base_net.extract_features(x.to(self.device))) \
+            .flatten(start_dim=1)).squeeze()
+
+        ensemble_logit = None
+        for tau in self.tau_arr:
+            ws = self.weights.clone()
+            for i in range(self.weights.size(0)):
+                ws[i] = ws[i] / torch.pow(self.normB[i], tau)
+            fc = copy.deepcopy(self.base_net._fc)
+            list(fc.parameters())[0].data = ws.to(self.device)
+            list(fc.parameters())[1].data = torch.zeros(50).to(self.device)
+
+            def classifier(rep):
+                return self.base_net._swish(fc(rep))
+            logit = classifier(rep)
+            if ensemble_logit is None:
+                ensemble_logit = logit
+            else:
+                ensemble_logit = torch.dstack((ensemble_logit, logit))
+        return torch.mode(ensemble_logit.argmax(1), 1)[0]

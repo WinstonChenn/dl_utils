@@ -219,3 +219,21 @@ def get_confusion_matrix(class_num, net, test_loader, device, div=True,
                 assert pred < class_num and pred >= 0
                 mat[label, pred] += 1
     return mat
+
+
+def bagging_simple_accuracy(baggingnet, dataloader, device, div=True,
+                            eval=True):
+    baggingnet.to(device)
+    if eval:
+        baggingnet.eval()
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for batch in dataloader:
+            images, labels = batch
+            if div:
+                labels = labels//2
+            predicted = baggingnet.predict(images.to(device))
+            total += labels.size(0)
+            correct += (predicted == labels.to(device)).sum().item()
+    return correct/total
