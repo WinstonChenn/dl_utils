@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, copy
 from os.path import dirname, realpath
 import torch
 import tqdm.notebook as tq
