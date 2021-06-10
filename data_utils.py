@@ -107,7 +107,7 @@ def print_random_img(dataset, label_map, n=3):
         rand_idx = random.randint(0, len(dataset))
         img, target = dataset[rand_idx]
         axes[i].imshow(img.permute(1, 2, 0))
-        axes[i].set_title(label_map[target])
+        axes[i].set_title(f"{label_map[target]} {target}")
 
 
 def print_random_img_by_dataset(dataset_arr, label_map, n=3):
@@ -117,7 +117,7 @@ def print_random_img_by_dataset(dataset_arr, label_map, n=3):
         for i in range(n):
             img, target = dataset[rand_idx_arr[i]]
             axes[i].imshow(img.permute(1, 2, 0))
-            axes[i].set_title(label_map[target])
+            axes[i].set_title(f"{label_map[target]} {target}")
         fig.show()
 
 
