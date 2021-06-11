@@ -49,6 +49,21 @@ def get_lossWeights(beta, num_classes, data_dict):
     return weights
 
 
+def get_class_type_loss_weight(beta, num_class_types, effective_num):
+    effective_num = 1 - np.power(beta, effective_num)
+    weights = (1-beta)/effective_num
+    weights = weights/np.sum(weights)*num_class_types
+    weights = torch.FloatTensor(weights)
+    return weights
+
+
+def get_class_type_count(data_n_arr, class_type_arr, num_types):
+    class_type_n_arr = [0 for i in range(num_types)]
+    for idx, class_type in enumerate(class_type_arr):
+        class_type_n_arr[class_type] += data_n_arr[idx]
+    return class_type_n_arr
+
+
 def get_model(device, num_classes, net_str, optim_type, model=None, lr=0.001,
               momentum=0.9, decay=0.0005, loss_weight=None):
     """optim_type == SGD | Adam | SAM"""
