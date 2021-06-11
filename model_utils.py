@@ -181,11 +181,17 @@ class TauDivideAndConquerClassifier(nn.Module):
         self.classifier_arr = classifier_arr
 
     def forward(self, x):
-        div = self.divider(x)
-        assert div >= 0 and div < len(self.classifier_arr)-1, \
-            "not sufficient number of classifier"
-        x = self.classifier_arr[div][x]
-        return x
+        divs = self.divider.predict(x)
+        out = None
+        for idx, div in enumerate(divs):
+            assert div.item() >= 0 and div.item() <= len(self.classifier_arr)-1, \
+                "not sufficient number of classifier"
+            logit = self.classifier_arr[div.data](x[idx].unsqueeze(0))
+            if out is None:
+                out = logit
+            else:
+                out = torch.vstack((out, logit))
+        return out
 
 
 class ClassTypeClassifier:
