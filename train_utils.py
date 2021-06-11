@@ -78,7 +78,7 @@ def get_model(device, num_classes, net_str, optim_type, model=None, lr=0.001,
 
 
 def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
-          rho, device, criterion, optimizer, beta=0.0, epochs=1):
+          rho, device, criterion, optimizer, beta=0.0, epochs=1, div=True):
     losses = []
     vali_losses = []
     vali_accues = []
@@ -130,17 +130,19 @@ def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
                     position=0, leave=True, total=len(train_loader))
         for i, batch in t:
             inputs, labels = batch
+            # ***map to network output, specific for CIFAR-50***
+            if div:
+                labels = labels//2
 
             def closure():
                 loss = criterion(net(inputs.to(device)),
-                                 (labels//2).to(device))
+                                 (labels).to(device))
                 loss.backward()
                 return loss
             # zero the parameter gradients
             optimizer.zero_grad()
             # forward + backward + optimize
-            # ***map to network output, specific for CIFAR-50***
-            loss = criterion(net(inputs.to(device)), (labels//2).to(device))
+            loss = criterion(net(inputs.to(device)), (labels).to(device))
             loss.backward()
             if optim_str == "SAM":
                 optimizer.step(closure)
