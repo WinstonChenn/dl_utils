@@ -235,3 +235,15 @@ def bagging_simple_accuracy(baggingnet, dataloader, device, div=True):
             total += labels.size(0)
             correct += (predicted == labels.to(device)).sum().item()
     return correct/total
+
+
+def class_type_simple_accuracy(net, dataloader, device):
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for batch in dataloader:
+            images, labels = batch
+            predicted = net.predict(images.to(device))
+            total += labels.size(0)
+            correct += (predicted.to(device) == labels.to(device)).sum().item()
+    return correct/total
