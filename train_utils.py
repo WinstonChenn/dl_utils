@@ -153,7 +153,7 @@ def train(checkpoint_dir, net, train_loader, vali_loader, net_str, data_label,
 
         # validation
         net.eval()
-        vali_accuracy = simple_accuracy(net, vali_loader, device)
+        vali_accuracy = simple_accuracy(net, vali_loader, device, div=div)
         print("epoch {}\tloss={:.3f}\taccuracy={:.3f}".format(
             epoch, losses[-1], vali_accuracy))
         vali_losses.append(losses[-1])
