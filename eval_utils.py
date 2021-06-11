@@ -3,6 +3,7 @@ import operator
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
+import tqdm.notebook as tq
 
 
 def get_class_type(n_arr):
@@ -108,7 +109,8 @@ def classifier_simple_accuracy(net, classifier, dataloader, device, div=True,
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch in dataloader:
+        t = tq.tqdm(dataloader, position=0, leave=True)
+        for batch in t:
             images, labels = batch
             if div:
                 labels = labels//2
