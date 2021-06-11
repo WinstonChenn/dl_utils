@@ -174,8 +174,9 @@ class TauLogitEnsembleEfficientNet(nn.Module):
         return x
 
 
-class TauDivdeAndConquerClassifier(nn.Module):
+class TauDivideAndConquerClassifier(nn.Module):
     def __init__(self, divider, classifier_arr):
+        super(TauDivdeAndConquerClassifier, self).__init__()
         self.divider = divider
         self.classifier_arr = classifier_arr
 
