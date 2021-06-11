@@ -102,7 +102,7 @@ def simple_accuracy(net, dataloader, device, div=True, eval=True):
 
 
 def classifier_simple_accuracy(net, classifier, dataloader, device, div=True,
-                               eval=True):
+                               eval=True, tq=True):
 
     net.to(device)
     if eval:
@@ -110,7 +110,10 @@ def classifier_simple_accuracy(net, classifier, dataloader, device, div=True,
     correct = 0
     total = 0
     with torch.no_grad():
-        t = tq.tqdm(dataloader, position=0, leave=True)
+        if tq:
+            t = tq.tqdm(dataloader, position=0, leave=True)
+        else:
+            t = dataloader
         for batch in t:
             images, labels = batch
             if div:
@@ -145,18 +148,18 @@ def tau_sweep(net, tau_arr, device, full_loader, many_loader,
 
         print(f"tau={p:.3f}\t", end="")
         overall_accu = classifier_simple_accuracy(net, classifier, full_loader,
-                                                  device)
+                                                  device, tq=False)
         print(f"overall accuracy: {overall_accu:.3f}\t", end="")
         many_accu = classifier_simple_accuracy(net, classifier, many_loader,
-                                               device)
+                                               device, tq=False)
         print(f"many class accuracy: {many_accu:.3f}\t", end="")
         if medium_loader is not None:
             medium_accu = classifier_simple_accuracy(net, classifier,
-                                                     medium_loader, device)
+                                                     medium_loader, device, tq=False)
             print(f"medium class accuracy: {medium_accu:.3f}\t", end="")
         if few_loader is not None:
             few_accu = classifier_simple_accuracy(net, classifier,
-                                                  few_loader, device)
+                                                  few_loader, device, tq=False)
             print(f"few class accuracy: {few_accu:.3f}\t", end="")
         print()
 
