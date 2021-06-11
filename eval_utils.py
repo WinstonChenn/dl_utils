@@ -89,7 +89,8 @@ def simple_accuracy(net, dataloader, device, div=True, eval=True):
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch in dataloader:
+        t = tq.tqdm(dataloader, position=0, leave=True)
+        for batch in t:
             images, labels = batch
             if div:
                 labels = labels//2
@@ -227,7 +228,8 @@ def bagging_simple_accuracy(baggingnet, dataloader, device, div=True):
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch in dataloader:
+        t = tq.tqdm(dataloader, position=0, leave=True)
+        for batch in t:
             images, labels = batch
             if div:
                 labels = labels//2
@@ -241,7 +243,8 @@ def class_type_simple_accuracy(net, dataloader, device):
     correct = 0
     total = 0
     with torch.no_grad():
-        for batch in dataloader:
+        t = tq.tqdm(dataloader, position=0, leave=True)
+        for batch in t:
             images, labels = batch
             predicted = net.predict(images.to(device))
             total += labels.size(0)
