@@ -182,7 +182,19 @@ class TauDivideAndConquerClassifier(nn.Module):
 
     def forward(self, x):
         div = self.divider(x)
-        assert div >= 0 and div < len(classifier_arr)-1, \
+        assert div >= 0 and div < len(self.classifier_arr)-1, \
             "not sufficient number of classifier"
-        x = classifier_arr[div][x]
+        x = self.classifier_arr[div][x]
         return x
+
+
+class ClassTypeClassifier:
+    def __init__(self, base_net, class_type_arr):
+        self.base_net = base_net
+        self.class_type_arr = class_type_arr
+
+    def predict(self, x):
+        outputs = self.base_net(x)
+        _, predict = torch.max(outputs, 1)
+        pred_type = torch.tensor([self.class_type_arr[p.item()] for p in predict])
+        return pred_type
